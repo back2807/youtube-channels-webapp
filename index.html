@@ -644,25 +644,48 @@
 
     <script>
         let allChannels = [];
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz8fXqKq-cYhWWrwXB3Zx5T0IEP28Jr_fDyuIOhp2CZclqBRA7ZPg8rme-H1G0ry08/exec';
 
-        // Sử dụng luồng gọi Async chuẩn của Google Apps Script
+        // Tải dữ liệu hỗ trợ cả môi trường Google Apps Script Web App lẫn GitHub Pages
         function loadData() {
-            if (typeof google !== 'undefined' && google.script) {
+            if (typeof google !== 'undefined' && google.script && google.script.run) {
                 google.script.run
                     .withSuccessHandler(function(data) {
-                        allChannels = data;
+                        allChannels = Array.isArray(data) ? data : [];
                         document.getElementById('loader').style.display = 'none';
                         document.getElementById('list-container').style.display = 'flex';
                         renderChannels(allChannels);
                     })
                     .withFailureHandler(function(error) {
-                        console.error('Error fetching data:', error);
-                        document.getElementById('loader').innerHTML = `<p style="color: red; font-weight: bold;">Lỗi tải dữ liệu: ${error}</p>`;
+                        console.warn('Lỗi gọi google.script.run, chuyển sang gọi API trực tiếp:', error);
+                        fetchDataFromApi();
                     })
                     .getChannelsData();
             } else {
-                document.getElementById('loader').innerHTML = `<p style="color: red; font-weight: bold;">Lỗi: Không tìm thấy môi trường Apps Script.</p>`;
+                fetchDataFromApi();
             }
+        }
+
+        function fetchDataFromApi() {
+            fetch(`${SCRIPT_URL}?action=getData`)
+                .then(response => {
+                    if (!response.ok) throw new Error('Mã phản hồi HTTP: ' + response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    allChannels = Array.isArray(data) ? data : [];
+                    document.getElementById('loader').style.display = 'none';
+                    document.getElementById('list-container').style.display = 'flex';
+                    renderChannels(allChannels);
+                })
+                .catch(error => {
+                    console.error('Error fetching data via API:', error);
+                    document.getElementById('loader').innerHTML = `
+                        <p style="color: #d32f2f; font-weight: bold;">Lỗi tải dữ liệu từ Google Apps Script.</p>
+                        <p style="color: #666; font-size: 0.9rem;">Chi tiết: ${error.message || error}</p>
+                        <button class="btn" style="margin-top: 1rem; padding: 0.5rem 1.2rem;" onclick="location.reload()">Thử lại</button>
+                    `;
+                });
         }
 
         // Tự động tải dữ liệu
@@ -794,9 +817,14 @@
             // Nếu hợp lệ, tắt thông báo lỗi
             errorMsg.style.display = 'none';
             
-            // Đẩy dữ liệu về Google Sheet (nếu có API)
+            // Đẩy dữ liệu về Google Sheet (hỗ trợ cả môi trường Apps Script lẫn GitHub Pages)
             if (typeof google !== 'undefined' && google.script && google.script.run) {
                 google.script.run.saveCustomerInfo(currentCheckoutId, email, phone);
+            } else {
+                fetch(`${SCRIPT_URL}?action=saveCustomer&channelId=${encodeURIComponent(currentCheckoutId)}&email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}`, {
+                    method: 'GET',
+                    mode: 'no-cors'
+                }).catch(err => console.error('Lỗi gửi thông tin khách hàng:', err));
             }
             
             // Mở trang thanh toán

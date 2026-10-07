@@ -3,6 +3,21 @@ const SHEET_NAME = 'Display'; // Lấy dữ liệu từ sheet Display
 const LOG_SHEET_NAME = 'Lịch sử GD';
 
 function doGet(e) {
+  // 1. Phục vụ API dữ liệu JSON cho GitHub Pages hoặc ứng dụng bên ngoài
+  if (e && e.parameter) {
+    if (e.parameter.action === 'getData' || e.parameter.api === 'true' || e.parameter.json === 'true') {
+      const data = getChannelsData();
+      return ContentService.createTextOutput(JSON.stringify(data))
+          .setMimeType(ContentService.MimeType.JSON);
+    }
+    if (e.parameter.action === 'saveCustomer') {
+      saveCustomerInfo(e.parameter.channelId, e.parameter.email, e.parameter.phone);
+      return ContentService.createTextOutput(JSON.stringify({success: true}))
+          .setMimeType(ContentService.MimeType.JSON);
+    }
+  }
+
+  // 2. Mặc định: Trả về trang HTML cho môi trường Apps Script
   const template = HtmlService.createTemplateFromFile('index');
   return template.evaluate()
       .setTitle('DANH SÁCH KÊNH YOUTUBE')
