@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DANH SÁCH KÊNH YOUTUBE</title>
+    <!-- Phông chữ trang trọng: Montserrat cho Tiêu đề và Inter cho Nội dung -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Montserrat:wght@600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --primary-blue: #0f4c81;
+            --primary-green: #2e7d32;
+            --primary-green-hover: #1b5e20;
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --text-main: #333333;
+            --text-muted: #666666;
+            --border-color: #e0e0e0;
+            --radius: 8px;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            --shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        /* Header Layout */
+        header {
+            background-color: var(--card-bg);
+            border-bottom: 2px solid var(--primary-blue);
+            text-align: center;
+            padding: 3rem 1rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        header h1 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin: 0;
+            color: var(--primary-blue);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        header p {
+            font-family: 'Inter', sans-serif;
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            margin-top: 0.5rem;
+            font-weight: 500;
+        }
+
+        /* Social Links */
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1.2rem;
+            flex-wrap: wrap;
+        }
+
+        .social-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.6rem 1.2rem;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.2s ease;
+        }
+
+        .social-zalo { background: #e3f2fd; color: #1565c0; border: 1px solid #bbdefb; }
+        .social-zalo:hover { background: #1565c0; color: #fff; }
+
+        .social-whatsapp { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
+        .social-whatsapp:hover { background: #2e7d32; color: #fff; }
+
+        .social-telegram { background: #e3f2fd; color: #0288d1; border: 1px solid #b3e5fc; }
+        .social-telegram:hover { background: #0288d1; color: #fff; }
+
+        /* Filter Section */
+        .filters-container {
+            background-color: var(--primary-blue);
+            padding: 1.5rem 1rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+        }
+
+        .filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            justify-content: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .filter-group label {
+            font-size: 0.85rem;
+            color: #ffffff;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        select {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 0.7rem 1rem;
+            border-radius: 4px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            font-size: 0.95rem;
+            outline: none;
+            cursor: pointer;
+            transition: border-color 0.2s;
+            min-width: 220px;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        select:hover, select:focus {
+            border-color: var(--primary-green);
+        }
+
+        /* Loading */
+        #loader {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 5rem 0;
+            color: var(--primary-blue);
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e0e0e0;
+            border-left-color: var(--primary-blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* List Layout */
+        .list-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            max-width: 1200px;
+            margin: 0 auto 4rem;
+            padding: 0 1rem;
+        }
+
+        .list-item {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow);
+            gap: 1.5rem;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .list-item:hover {
+            box-shadow: var(--shadow-hover);
+            border-color: var(--primary-green);
+        }
+
+        .item-main {
+            flex: 2;
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .item-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary-blue);
+            text-decoration: none;
+            transition: color 0.2s;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .item-title:hover {
+            color: var(--primary-green);
+            text-decoration: underline;
+        }
+
+        .item-tags {
+            display: flex;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .badge-kt-co, .badge-age-co {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #c8e6c9;
+        }
+
+        .badge-kt-khong {
+            background: #f1f3f5;
+            color: #6c757d;
+            border: 1px solid #dee2e6;
+        }
+
+        .badge-age-moi {
+            background: #ffffff;
+            color: #495057;
+            border: 1px solid #ced4da;
+        }
+
+        .item-stats {
+            flex: 1.2;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            border-left: 1px solid var(--border-color);
+            padding-left: 1.5rem;
+        }
+
+        .stat-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.95rem;
+            color: var(--text-main);
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            width: 80px;
+        }
+
+        .stat-value {
+            font-weight: 600;
+        }
+
+        .item-drive {
+            flex: 1.2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-left: 1px solid var(--border-color);
+            padding-left: 1.5rem;
+        }
+
+        .drive-link {
+            color: var(--primary-blue);
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: color 0.2s;
+            background: #f1f3f5;
+            padding: 0.6rem 1rem;
+            border-radius: 6px;
+            border: 1px solid #e9ecef;
+        }
+
+        .drive-link:hover {
+            color: var(--primary-green);
+            background: #e8f5e9;
+            border-color: #c8e6c9;
+        }
+
+        .item-action {
+            flex: 1.5;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 0.8rem;
+            border-left: 1px solid var(--border-color);
+            padding-left: 1.5rem;
+        }
+
+        .item-price {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary-green);
+        }
+
+        .btn {
+            background: var(--primary-green);
+            color: white;
+            border: none;
+            padding: 0.7rem 1.8rem;
+            border-radius: 4px;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn:hover {
+            background: var(--primary-green-hover);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .list-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .item-stats, .item-drive, .item-action {
+                border-left: none;
+                padding-left: 0;
+                border-top: 1px solid var(--border-color);
+                padding-top: 1rem;
+                width: 100%;
+                align-items: flex-start;
+            }
+
+            .item-drive {
+                justify-content: flex-start;
+            }
+            
+            .item-action {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }
+        }
+
+        /* Checkout Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 1000;
+            padding: 1rem;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal {
+            background: #ffffff;
+            border-radius: var(--radius);
+            width: 100%;
+            max-width: 750px;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        .modal-overlay.active .modal {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            background-color: var(--primary-blue);
+            color: white;
+            border-top-left-radius: var(--radius);
+            border-top-right-radius: var(--radius);
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.4rem;
+            text-transform: uppercase;
+        }
+
+        .modal-body {
+            padding: 1.5rem 2rem;
+            overflow-y: auto;
+            color: var(--text-main);
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+
+        .modal-body h3 {
+            font-family: 'Montserrat', sans-serif;
+            color: var(--primary-blue);
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .modal-body p { margin-top: 0; color: #444; }
+
+        .checkout-form {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: var(--primary-blue);
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-group input {
+            padding: 0.8rem 1rem;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus {
+            border-color: var(--primary-blue);
+        }
+
+        .tooltip-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #6c757d;
+            color: white;
+            font-size: 0.75rem;
+            font-weight: bold;
+            cursor: help;
+        }
+
+        .error-msg {
+            color: #d32f2f;
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-top: 0.5rem;
+            display: none;
+        }
+
+        .modal-footer {
+            padding: 1.5rem;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            background: #f8f9fa;
+            border-bottom-left-radius: var(--radius);
+            border-bottom-right-radius: var(--radius);
+        }
+
+        .btn-cancel { background: #e2e8f0; color: var(--text-main); }
+        .btn-cancel:hover { background: #cbd5e1; }
+
+        .no-results {
+            text-align: center;
+            padding: 4rem;
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            background: white;
+            border-radius: var(--radius);
+            border: 1px solid var(--border-color);
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>DANH SÁCH KÊNH YOUTUBE</h1>
+        <p>Premium Assets & Digital Growth</p>
+        
+        <div class="social-links">
+            <a href="https://zalo.me/g/ldpwy7zgsvemmh8xt8ev" target="_blank" class="social-btn social-zalo" title="Nhóm Zalo">ZALO</a>
+            <a href="https://whatsapp.com/channel/0029VbDzPrTHgZWfZD6w4j27" target="_blank" class="social-btn social-whatsapp" title="Nhóm WhatsApp">WHATSAPP</a>
+            <a href="https://t.me/+FW5qwLrkRiYyNjU1" target="_blank" class="social-btn social-telegram" title="Nhóm Telegram">TELEGRAM</a>
+        </div>
+    </header>
+
+    <div class="filters-container">
+        <div class="filters">
+            <div class="filter-group">
+                <label for="priceFilter">Mức Giá</label>
+                <select id="priceFilter" onchange="applyFilters()">
+                    <option value="all">Tất cả mức giá</option>
+                    <option value="low">Dưới 2,000,000đ</option>
+                    <option value="mid">2,000,001đ - 5,000,000đ</option>
+                    <option value="high">Trên 5,000,000đ</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="subFilter">Người Đăng Ký (Subscribers)</label>
+                <select id="subFilter" onchange="applyFilters()">
+                    <option value="all">Tất cả</option>
+                    <option value="tier1">&lt; 2,000</option>
+                    <option value="tier2">&ge; 2,000 - 5,000</option>
+                    <option value="tier3">&ge; 5,000 - 10,000</option>
+                    <option value="tier4">&ge; 10,000 - 100,000</option>
+                    <option value="tier5">&ge; 100,000</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="countryFilter">Quốc Gia</label>
+                <select id="countryFilter" onchange="applyFilters()">
+                    <option value="all">Tất cả quốc gia</option>
+                    <option value="us">United States</option>
+                    <option value="uk">United Kingdom</option>
+                    <option value="in">India</option>
+                    <option value="other">Khác</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div id="loader">
+        <div class="spinner"></div>
+        <p style="margin-top: 1rem; font-weight: 500;">Đang xử lý dữ liệu...</p>
+    </div>
+
+    <!-- Container ngang thay vì dạng lưới -->
+    <div id="list-container" class="list-container" style="display: none;">
+        <!-- Channels will be injected here -->
+    </div>
+
+    <!-- Checkout Modal -->
+    <div id="checkoutModal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>ĐIỀU KHOẢN CHUYỂN NHƯỢNG TÀI SẢN SỐ</h2>
+            </div>
+            <div class="modal-body">
+                <div class="checkout-form">
+                    <div class="form-group">
+                        <label for="buyerEmail">
+                            Hãy điền mail nắm quyền quản trị kênh bạn mua:
+                            <span class="tooltip-icon" title="Mail này sẽ được add vào quyền quản trị và trở thành Chủ sở hữu chính / Primary Owner sau 7-9 ngày.">?</span>
+                        </label>
+                        <input type="email" id="buyerEmail" placeholder="Nhập email của bạn..." required>
+                    </div>
+                    <div class="form-group">
+                        <label for="buyerPhone">Số điện thoại của bạn:</label>
+                        <input type="tel" id="buyerPhone" placeholder="Nhập số điện thoại..." required>
+                    </div>
+                    <p class="error-msg" id="formError"></p>
+                </div>
+
+                <h3>1. Bản chất của Dịch vụ</h3>
+                <p>Bên Bán có nghĩa vụ bàn giao tài sản số (bao gồm tài khoản và kênh) ở trạng thái đã thiết lập và cấu hình hoàn chỉnh các thông tin cơ bản ban đầu. Hai bên xác nhận rằng, ngay tại thời điểm chuyển giao, tài sản số này hoàn toàn sạch, không vi phạm và đáp ứng đầy đủ các tiêu chuẩn cộng đồng cũng như chính sách vận hành của nền tảng chủ quản.</p>
+                <h3>2. Chuyển nhượng Quyền sở hữu</h3>
+                <p>Kể từ thời điểm thủ tục bàn giao được hoàn tất, toàn bộ quyền sở hữu, quyền định đoạt, quản lý và khai thác tài sản số sẽ thuộc về Bên Mua một cách hợp pháp. Bên Bán có trách nhiệm thoát toàn bộ thiết bị, xóa thông tin lưu trữ và không thực hiện bất kỳ hành vi nào nhằm truy cập lại hoặc can thiệp vào tài sản số sau khi đã chuyển giao.</p>
+                <h3>3. Nghĩa vụ sử dụng</h3>
+                <p>Bên Mua cam kết và chịu trách nhiệm độc lập trong việc vận hành tài sản số tuân thủ nghiêm ngặt theo quy định của pháp luật Việt Nam cùng các điều khoản dịch vụ của nền tảng liên quan (như Google, YouTube). Bên Mua tuyệt đối không được sử dụng tài sản này vào các hoạt động phi pháp, lừa đảo hoặc vi phạm chính sách của nhà phát hành.</p>
+                <h3>4. Giới hạn Phạm vi Trách nhiệm</h3>
+                <p>Mọi rủi ro, tranh chấp, khiếu nại hoặc trách nhiệm pháp lý và tài chính phát sinh từ cách thức vận hành tài sản số của Bên Mua sau thời điểm nhận bàn giao sẽ do Bên Mua hoàn toàn tự chịu trách nhiệm. Bên Bán miễn trừ toàn bộ trách nhiệm liên quan đến các hệ quả này.</p>
+                <h3>5. Phối hợp với Cơ quan Nhà nước</h3>
+                <p>Bên Bán giữ quyền lưu giữ toàn bộ lịch sử và thông tin giao dịch giữa hai bên. Trong trường hợp có yêu cầu bằng văn bản từ các cơ quan chức năng hoặc cơ quan có thẩm quyền theo quy định của pháp luật hiện hành, Bên Bán sẽ chủ động phối hợp và cung cấp đầy đủ thông tin theo đúng quy trình.</p>
+            </div>
+            <div class="modal-footer">
+                <a href="https://drive.google.com/file/d/1ukM3VB0EPk8kibW2mOlvEqM2Fu_sL4Ip/view?usp=drive_link" target="_blank" class="btn btn-cancel" style="margin-right: auto; text-decoration: none;">Hướng dẫn lấy kênh</a>
+                <button class="btn btn-cancel" onclick="closeModal()">Từ Chối & Hủy</button>
+                <button id="btnPay" class="btn" onclick="processCheckout()">Đồng Ý & Thanh Toán</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allChannels = [];
+
+        // Sử dụng luồng gọi Async chuẩn của Google Apps Script
+        function loadData() {
+            if (typeof google !== 'undefined' && google.script) {
+                google.script.run
+                    .withSuccessHandler(function(data) {
+                        allChannels = data;
+                        document.getElementById('loader').style.display = 'none';
+                        document.getElementById('list-container').style.display = 'flex';
+                        renderChannels(allChannels);
+                    })
+                    .withFailureHandler(function(error) {
+                        console.error('Error fetching data:', error);
+                        document.getElementById('loader').innerHTML = `<p style="color: red; font-weight: bold;">Lỗi tải dữ liệu: ${error}</p>`;
+                    })
+                    .getChannelsData();
+            } else {
+                document.getElementById('loader').innerHTML = `<p style="color: red; font-weight: bold;">Lỗi: Không tìm thấy môi trường Apps Script.</p>`;
+            }
+        }
+
+        // Tự động tải dữ liệu
+        loadData();
+
+        function formatCurrency(num) {
+            return num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,') + 'đ';
+        }
+
+        function applyFilters() {
+            const price = document.getElementById('priceFilter').value;
+            const subs = document.getElementById('subFilter').value;
+            const country = document.getElementById('countryFilter').value;
+
+            const filtered = allChannels.filter(c => {
+                let priceMatch = true;
+                if (price === 'low') priceMatch = c.price < 2000000;
+                if (price === 'mid') priceMatch = c.price >= 2000001 && c.price <= 5000000;
+                if (price === 'high') priceMatch = c.price > 5000000;
+
+                let subMatch = true;
+                if (subs === 'tier1') subMatch = c.subs < 2000;
+                if (subs === 'tier2') subMatch = c.subs >= 2000 && c.subs < 5000;
+                if (subs === 'tier3') subMatch = c.subs >= 5000 && c.subs < 10000;
+                if (subs === 'tier4') subMatch = c.subs >= 10000 && c.subs < 100000;
+                if (subs === 'tier5') subMatch = c.subs >= 100000;
+
+                let countryMatch = true;
+                const ctry = (c.country || "").trim().toLowerCase();
+                if (country === 'us') countryMatch = ctry === 'united states';
+                else if (country === 'uk') countryMatch = ctry === 'united kingdom';
+                else if (country === 'in') countryMatch = ctry === 'india';
+                else if (country === 'other') {
+                    countryMatch = !['united states', 'united kingdom', 'india'].includes(ctry);
+                }
+
+                return priceMatch && subMatch && countryMatch;
+            });
+
+            renderChannels(filtered);
+        }
+
+        function renderChannels(channels) {
+            const container = document.getElementById('list-container');
+            container.innerHTML = '';
+
+            if (channels.length === 0) {
+                container.innerHTML = '<div class="no-results">Không tìm thấy kênh phù hợp với bộ lọc hiện tại.</div>';
+                return;
+            }
+
+            channels.forEach(channel => {
+                const displayPrice = channel.price > 0 ? formatCurrency(channel.price) : channel.rawPrice;
+                const mztStatusText = channel.monetization ? channel.monetization.toUpperCase() : 'KHÔNG RÕ';
+                const mztClass = mztStatusText.includes('KHÔNG') ? 'badge-kt-khong' : 'badge-kt-co';
+                
+                const ageStatusText = channel.age ? channel.age.toUpperCase() : 'KÊNH MỚI';
+                const ageClass = ageStatusText.includes('CỔ') ? 'badge-age-co' : 'badge-age-moi';
+                
+                // Link kênh gắn thẳng vào tiêu đề
+                const channelLink = channel.link ? channel.link : '#';
+                
+                // Link Drive thay cho "Xem kênh"
+                const driveLink = channel.image ? channel.image : '';
+
+                const item = document.createElement('div');
+                item.className = 'list-item';
+                
+                item.innerHTML = `
+                    <div class="item-main">
+                        <a href="${channelLink}" target="_blank" class="item-title" title="Nhấp vào để truy cập YouTube">${channel.title || 'Kênh Chưa Xác Định'}</a>
+                        <div class="item-tags">
+                            <span class="badge ${mztClass}">KT: ${mztStatusText}</span>
+                            <span class="badge ${ageClass}">${ageStatusText}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="item-stats">
+                        <div class="stat-row">
+                            <span class="stat-label">Đăng ký:</span>
+                            <span class="stat-value">${channel.rawSubs || '0'}</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Quốc gia:</span>
+                            <span class="stat-value">${channel.country || 'N/A'}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="item-drive">
+                        ${driveLink ? `<a href="${driveLink}" target="_blank" class="drive-link">Ảnh Chụp Studio</a>` : '<span style="color:#999; font-size:0.85rem; font-style:italic;">Không có ảnh</span>'}
+                    </div>
+                    
+                    <div class="item-action">
+                        <div class="item-price">${displayPrice}</div>
+                        <button class="btn" onclick="openModal('${channel.price}', '${channel.id}')">Mua Ngay</button>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        let currentCheckoutPrice = 0;
+        let currentCheckoutId = '';
+
+        function openModal(price, id) {
+            if (!id) id = "KHONG_RO_ID";
+            currentCheckoutPrice = price;
+            currentCheckoutId = id;
+            
+            // Reset form
+            document.getElementById('buyerEmail').value = '';
+            document.getElementById('buyerPhone').value = '';
+            document.getElementById('formError').style.display = 'none';
+            
+            document.getElementById('checkoutModal').classList.add('active');
+        }
+
+        function processCheckout() {
+            const email = document.getElementById('buyerEmail').value.trim();
+            const phone = document.getElementById('buyerPhone').value.trim();
+            const errorMsg = document.getElementById('formError');
+            
+            if (!email || !phone) {
+                errorMsg.textContent = 'Vui lòng điền đầy đủ Email và Số điện thoại bắt buộc!';
+                errorMsg.style.display = 'block';
+                return;
+            }
+            
+            // Nếu hợp lệ, tắt thông báo lỗi
+            errorMsg.style.display = 'none';
+            
+            // Đẩy dữ liệu về Google Sheet (nếu có API)
+            if (typeof google !== 'undefined' && google.script && google.script.run) {
+                google.script.run.saveCustomerInfo(currentCheckoutId, email, phone);
+            }
+            
+            // Mở trang thanh toán
+            const payUrl = `https://vietqr.app/img?bank=ACB&acc=29963067&template=standee&amount=${currentCheckoutPrice}&des=${currentCheckoutId}&holder=BOLDBUDDY`;
+            window.open(payUrl, '_blank');
+        }
+
+        function closeModal() {
+            document.getElementById('checkoutModal').classList.remove('active');
+        }
+    </script>
+</body>
+
+</html>
