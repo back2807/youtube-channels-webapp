@@ -644,7 +644,12 @@
 
     <script>
         let allChannels = [];
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz8fXqKq-cYhWWrwXB3Zx5T0IEP28Jr_fDyuIOhp2CZclqBRA7ZPg8rme-H1G0ry08/exec';
+        // Hỗ trợ cả 2 bản deployment Web App để đảm bảo luôn kết nối thành công
+        const SCRIPT_URLS = [
+            'https://script.google.com/macros/s/AKfycbxcEMwsK485Qlmtv-ZzMKC9LwXeJnGWW9CqwNWKjy-FzKt5RoYMirw8yZL_FsQ38zY/exec', // Bản Public API for GitHub Pages (Ảnh bạn đang cấu hình)
+            'https://script.google.com/macros/s/AKfycbz8fXqKq-cYhWWrwXB3Zx5T0IEP28Jr_fDyuIOhp2CZclqBRA7ZPg8rme-H1G0ry08/exec'  // Bản Update API for GitHub Pages
+        ];
+        let activeScriptUrl = SCRIPT_URLS[0];
 
         // Tải dữ liệu hỗ trợ cả môi trường Google Apps Script Web App lẫn GitHub Pages
         function loadData() {
@@ -658,18 +663,32 @@
                     })
                     .withFailureHandler(function(error) {
                         console.warn('Lỗi gọi google.script.run, chuyển sang gọi API trực tiếp:', error);
-                        fetchDataFromApi();
+                        fetchDataFromApi(0);
                     })
                     .getChannelsData();
             } else {
-                fetchDataFromApi();
+                fetchDataFromApi(0);
             }
         }
 
-        function fetchDataFromApi() {
-            fetch(`${SCRIPT_URL}?action=getData`)
+        function fetchDataFromApi(urlIndex) {
+            if (urlIndex >= SCRIPT_URLS.length) {
+                document.getElementById('loader').innerHTML = `
+                    <p style="color: #d32f2f; font-weight: bold; font-size: 1.05rem;">Không thể kết nối đến máy chủ Google Apps Script.</p>
+                    <p style="color: #555; font-size: 0.9rem; max-width: 600px; line-height: 1.5; margin: 0.5rem auto;">
+                        Cần đảm bảo quyền <b>Who has access</b> trong mục <b>Manage deployments</b> trên Apps Script đã được chuyển thành <b>Anyone</b> (Bất kỳ ai).
+                    </p>
+                    <button class="btn" style="margin-top: 1rem; padding: 0.5rem 1.4rem;" onclick="location.reload()">Tải lại trang</button>
+                `;
+                return;
+            }
+
+            const currentUrl = SCRIPT_URLS[urlIndex];
+            activeScriptUrl = currentUrl;
+
+            fetch(`${currentUrl}?action=getData`)
                 .then(response => {
-                    if (!response.ok) throw new Error('Mã phản hồi HTTP: ' + response.status);
+                    if (!response.ok) throw new Error('HTTP status ' + response.status);
                     return response.json();
                 })
                 .then(data => {
@@ -679,12 +698,8 @@
                     renderChannels(allChannels);
                 })
                 .catch(error => {
-                    console.error('Error fetching data via API:', error);
-                    document.getElementById('loader').innerHTML = `
-                        <p style="color: #d32f2f; font-weight: bold;">Lỗi tải dữ liệu từ Google Apps Script.</p>
-                        <p style="color: #666; font-size: 0.9rem;">Chi tiết: ${error.message || error}</p>
-                        <button class="btn" style="margin-top: 1rem; padding: 0.5rem 1.2rem;" onclick="location.reload()">Thử lại</button>
-                    `;
+                    console.warn(`URL [${urlIndex}] không phản hồi (${error.message}), thử URL tiếp theo...`);
+                    fetchDataFromApi(urlIndex + 1);
                 });
         }
 
@@ -821,7 +836,7 @@
             if (typeof google !== 'undefined' && google.script && google.script.run) {
                 google.script.run.saveCustomerInfo(currentCheckoutId, email, phone);
             } else {
-                fetch(`${SCRIPT_URL}?action=saveCustomer&channelId=${encodeURIComponent(currentCheckoutId)}&email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}`, {
+                fetch(`${activeScriptUrl}?action=saveCustomer&channelId=${encodeURIComponent(currentCheckoutId)}&email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}`, {
                     method: 'GET',
                     mode: 'no-cors'
                 }).catch(err => console.error('Lỗi gửi thông tin khách hàng:', err));
